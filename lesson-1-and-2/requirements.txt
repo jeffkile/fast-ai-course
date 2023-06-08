@@ -1,2 +1,2 @@
-fastai
-gradio
+fastai==2.7.12
+gradio==3.34.0
