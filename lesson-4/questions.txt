@@ -1,0 +1,135 @@
+How is a grayscale image represented on a computer? How about a color image?
+Matrix of 0 to 255, matrix of rgb
+
+How are the files and folders in the MNIST_SAMPLE dataset structured? Why?
+There are separate folders for the trainig set and validation set and/or test set. This is so we are sure our validation/test data is not mixed into our training data to prevent overfitting.
+
+Explain how the "pixel similarity" approach to classifying digits works.
+We take all of the images of one digit and average their values at each pixel location. Then when making a prediction we compare the input image to the average image for each digit and chose the one with the lowest loss.
+
+What is a list comprehension? Create one now that selects odd numbers from a list and doubles them.
+A feature of python which can generate lists using for loops and if statements.
+x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+y = [a * 2 for a in x if a % 2 == 0 ]
+
+What is a "rank-3 tensor"?
+3 dimensional matrix/vector
+
+What is the difference between tensor rank and shape? How do you get the rank from the shape?
+The rank is the number of dimensions, the shape is the length of each dimension
+
+What are RMSE and L1 norm?
+RMSE is the Root Mean Square Error = sqrt(mean((result - prediction)^2))
+L1 norm is the mean of the absolute value = mean(abs(result - prediction))
+
+How can you apply a calculation on thousands of numbers at once, many thousands of times faster than a Python loop?
+By using matrix multiplication that runs on a GPU
+
+Create a 3×3 tensor or array containing the numbers from 1 to 9. Double it. Select the bottom-right four numbers.
+x = tensor([[1,2,3],[4,5,6],[7,8,9]])
+y = x * tensor(2)
+z = y[-2:, -2:]
+
+What is broadcasting?
+Broadcasting is when pytorch applies an operation to every item in a tensor
+
+Are metrics generally calculated using the training set, or the validation set? Why?
+They are calicated on the validation set so that we don't overfit the training data
+
+What is SGD?
+Stochastic Gradient Decent
+
+Why does SGD use mini-batches?
+If we updated weights after each individual training item we would be doing way too many updates and it would take forever. If we tried to update all of the training set at one time we would run out of memory. Therefore we find a middle ground.
+
+What are the seven steps in SGD for machine learning?
+1. Initialize the weights usually to random values
+2. For each item in the training set use the weights to predict the label
+3. Calculate the loss
+4. Calculate the gradient for each weight
+5. Change all of the weights by some learning rate times the gradient value
+6. Go to step 2 and repeat the process
+7. Stop once the model is good enough or you have run out of time
+
+How do we initialize the weights in a model?
+Usually randomly
+
+What is "loss"?
+Loss is the difference between our prediction and the label
+
+Why can't we always use a high learning rate?
+Because we will overshoot our minimum and end up jumping back and forth
+
+What is a "gradient"?
+A derivative evaluated at a point
+
+Do you need to know how to calculate gradients yourself?
+No, if you use pytorch it will calculate the gradient for you
+
+Why can't we use accuracy as a loss function?
+Because accuracy is the percentage of correct answers, our loss function determines how far off each prediction was
+
+Draw the sigmoid function. What is special about its shape?
+As numbers get larger (above 4) it gets very close to 1, as numbers get smaller (below -4) it gets very close to 0
+
+What is the difference between a loss function and a metric?
+A metric is used to determine overall performance
+
+What is the function to calculate new weights using a learning rate?
+Backpropigation
+
+What does the DataLoader class do?
+Shuffles the training data and and provides batches
+
+Write pseudocode showing the basic steps taken in each epoch for SGD.
+   for xb,yb in dl:
+        calc_grad(xb, yb, model)
+        for p in params:
+            p.data -= p.grad*lr
+            p.grad.zero_()
+
+
+Create a function that, if passed two arguments [1,2,3,4] and 'abcd', returns [(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd')]. What is special about that output data structure?
+def fun(a, b):
+    return list(zip(a, b))
+
+What does view do in PyTorch?
+Changes the shape of a tensor without changing its contents
+
+What are the "bias" parameters in a neural network? Why do we need them?
+Bias parameters are values added after multiplying a neurons weights with its input before the activation function. We need them because they allow us to handle situations where the input is 0 and they give the model an extra degree of freedom to "learn" the solution, without the bias the models output would only be based off of the input received.
+
+What does the @ operator do in Python?
+Matrix multiplication
+
+What does the backward method do?
+Calculates the gradients for any parameters with gradients turned on
+
+Why do we have to zero the gradients?
+Because we want the gradients to start over, otherwise they would keep getting added to
+
+What information do we have to pass to Learner?
+Dataloaders, model, optimization function, loss function, optionally any metrics to print
+
+Show Python or pseudocode for the basic steps of a training loop.
+def train_model(model, epochs):
+    for i in range(epochs):
+       for xb,yb in dl:
+            preds = model(xb)
+            loss = mnist_loss(preds, yb)
+            loss.backward()
+            calc_grad(xb, yb, model)
+            for p in self.params: p.data -= p.grad.data * self.lr
+            for p in self.params: p.grad = None
+
+What is "ReLU"? Draw a plot of it for values from -2 to +2.
+Rectifier Linear Unit. Any value below 0 becomes 0 any value above 0 is that value
+
+What is an "activation function"?
+The function after applying the neurons weights and bias to its input we send the result to an activation function which will allow the model to become non-linear, they can also limit the range of the neurons output.
+
+What's the difference between F.relu and nn.ReLU?
+F.relu is a stand alone function that can be called on its own. nn.ReLU is a class that contains the F.relu function, it can be useful when you want to tell a model to use the ReLU function.
+
+The universal approximation theorem shows that any function can be approximated as closely as needed using just one nonlinearity. So why do we normally use more?
+Deep networks can approximate complex functions more efficiently thus reducing the total number of neurons and computational resources needed
