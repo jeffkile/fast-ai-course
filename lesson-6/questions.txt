@@ -1,0 +1,69 @@
+1. How could multi-label classification improve the usability of the bear classifier?
+If the image we're predicting is not of a bear or is a new type of bear it could tell us that it isn't any of the bears. Currently the classifier will pick one no matter what.
+
+2. How do we encode the dependent variable in a multi-label classification problem?
+Using one hot encoding 
+
+3. How do you access the rows and columns of a DataFrame as if it was a matrix?
+By using the iloc() function. Example:
+```
+df = pd.read_csv(path/'train.csv')
+df.head
+```
+fname	labels	is_valid
+0	000005.jpg	chair	True
+1	000007.jpg	car	True
+2	000009.jpg	horse person	True
+3	000012.jpg	car	False
+4	000016.jpg	bicycle	True
+
+```
+df.iloc[2,1]
+```
+'horse person'
+
+4. How do you get a column by name from a DataFrame?
+You can index it by key where the key is a string of the column name
+```
+df['labels']
+```
+
+5. What is the difference between a Dataset and DataLoader?
+A dataset is a collection which contains tuples of the independent and dependent variable grouped together.
+A dataloader is an interator that returns minibatches, it takes your data and breaks it up into batches. Dataloaders contain 1 or more datasets. 
+
+6. What does a Datasets object normally contain?
+It contains 2 dataset objects. One for training data and the other for validation data. If you pass in a dataframe it will split it up for you.
+
+7. What does a DataLoaders object normally contain?
+It contains 2 dataloader objects. One for training data and the other for validation data.
+
+8. What does lambda do in Python?
+It defines an anonymous or unnamed function
+
+9. What are the methods to customize how the independent and dependent variables are created with the data block API?
+get_x and get_y, get_x returns the independent variable and get_y returns the dependent variable
+
+10. Why is softmax not an appropriate output activation function when using a one hot encoded target?
+Softmax will choose one of the options since all options must sum to 1 and the highest scoring option will exaturate its likelihood since its run through exp. We might not want to choose any option if none of them are a good match.
+
+11. Why is nll_loss not an appropriate loss function when using a one-hot-encoded target?
+nll_loss only returns one label per item, we may have multiple labels per item
+
+12. What is the difference between nn.BCELoss and nn.BCEWithLogitsLoss?
+The second function is the same as the first except it includes an initial sigmoid function
+
+13. Why can't we use regular accuracy in a multi-label problem?
+Our old accuracy function chooses the input with the highest prediction. That doesn't work because we could have more than one prediction. Instead we need to have a threshold assigned to each target class
+
+14. When is it okay to tune a hyperparameter on the validation set?
+Because the relationship is smooth between the threshold and the accuracy when we modify the threshold hyperparameter
+
+15. How is y_range implemented in fastai? (See if you can implement it yourself and test it without peeking!)
+sigmoid(x) * (high - lo) + lo
+
+16. What is a regression problem? What loss function should you use for such a problem?
+A regression problem is when we are mapping somewhere in a range of continuous values instead of choosing a specific item in a set of items.
+
+17. What do you need to do to make sure the fastai library applies the same data augmentation to your input images and your target point coordinates?
+We need to make sure that the second argument passed to the blocks parameter is a PointBlock, then Fast AI will do the synchronized augementation to both automatically.
