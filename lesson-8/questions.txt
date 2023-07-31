@@ -1,0 +1,119 @@
+1. What problem does collaborative filtering solve?
+Recommending things to users
+
+2. How does it solve it?
+It recommends items that one users likes to other similar users. Users can be deemed "similar" in a number of different ways but it's usually based on them interacting with the same or or similar items.
+
+3. Why might a collaborative filtering predictive model fail to be a very useful recommendation system?
+Popular items might be over recommended and niche items totally ignored.
+
+4. What does a crosstab representation of collaborative filtering data look like?
+It's a table which shows the score each user gave each movie
+
+5. Write the code to create a crosstab representation of the MovieLens data (you might need to do some web searching!).
+import pandas as pd
+
+# load the data
+path = untar_data(URLs.ML_100k)
+ratings = pd.read_csv(path/'ratings.csv')
+
+movie_crosstab = pd.crosstab(ratings['user'], ratings['movie'], values=ratings['rating'], aggfunc='mean').fillna(None)
+movie_crosstab
+
+6. What is a latent factor? Why is it "latent"?
+They are quantitative learned characterstics of the data in this case about the movies. Embeddings are at type of latent factor
+
+7. What is a dot product? Calculate a dot product manually using pure Python with lists.
+Multiply two arrays together and sum the results
+a = [1, 2, 3, 4]
+b = [4, 3, 2, 1]
+sum = 0
+for item, index in enumerate(a):
+    sum = sum + item * b[index]
+
+8. What does pandas.DataFrame.merge do?
+Merge is like the join operation in SQL. It combines to tables of data on a related column found in the two datasets.
+
+9. What is an embedding matrix?
+It's a table of numbers where the rows are each item of data being trained on or evaluated and the columns are latent factors for that data. So if we had 200 training examples and 50 latent factors the table would be 200 rows x 50 columns.
+
+10. What is the relationship between an embedding and a matrix of one-hot-encoded vectors?
+A one hot-hot-encoded vector representing a single itme multiplied by the matrix of latent factors gives us the embeddings for that item
+
+11. Why do we need Embedding if we could use one-hot-encoded vectors for the same thing?
+We would need one vector for every movie and then we would need to compute the probability for each movie to each user. It's possible but it would take up much more space and time then using the encoding approach, which maps users preferences to a point in the embedding space, rather than to each movie individually.
+
+12.	What does an embedding contain before we start training (assuming we're not using a pretained model)?
+Random values around a normal distribution
+nn.Parameter(torch.zeros(*size).normal_(0, 0.01))
+
+13. Create a class (without peeking, if possible!) and use it.
+class Foo:
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+    def bar(self):
+        print(self.a + self.b)
+
+14.	What does x[:,0] return?
+The first column for all of the rows
+
+15. Rewrite the DotProduct class (without peeking, if possible!) and train a model with it.
+class DotProduct(Module):
+    def __init__(self, n_users, n_movies, n_factors):
+        self.user_factors = Embedding(n_users, n_factors)
+        self.movie_factors = Embedding(n_movies, n_factors)
+        
+    def forward(self, x):
+        users = self.user_factors(x[:,0])
+        movies = self.movie_factors(x[:,1])
+        return (users * movies).sum(dim=1)
+     
+16. What is a good loss function to use for MovieLens? Why?
+Mean Squared Error - We want to train the embeddings by adjusting them such that we minimize the distance between the predicted movie score and the actual movie score. Mean Squared Error is essentially the disance formula in geometry. 
+
+17. What would happen if we used cross-entropy loss with MovieLens? How would we need to change the model?
+We would need to have one hot encoded all of the movies as categories then use cross-entropy loss to get a probability for each movie. Its definitely possible but it would require more space and more processing power.
+
+18	What is the use of bias in a dot product model?
+Its another parameter that can be learned. Intuitively it could represent something like how good a movie is or how much a particular user likes movies in general.
+
+19	What is another name for weight decay?
+L2 regularization
+
+20	Write the equation for weight decay (without peeking!).
+loss_with_wd = loss + wd * (parameters**2).sum()
+
+21	Write the equation for the gradient of weight decay. Why does it help reduce weights?
+parameters.grad += wd * 2 * parameters because 2 * parameters is the derivative of parameters^2
+
+It reduces weight because were multiplying by a value that's less than 1
+
+22	Why does reducing weights lead to better generalization?
+Because the resulting learned function will be smoother and less spikey
+
+23	What does argsort do in PyTorch?
+It sorts a tensor by a given dimension and returns the indexes in sorted order
+
+24	Does sorting the movie biases give the same result as averaging overall movie ratings by movie? Why/why not?
+Yes it should basically do so, because the bias essentially normalizes all of the movies so a movie with a high bias means it was pushed up a lot by users ratings
+
+25	How do you print the names and details of the layers in a model?
+
+26	What is the "bootstrapping problem" in collaborative filtering?
+Its that we can't make recommendations to new users because we don't have any data on what they like yet
+
+27	How could you deal with the bootstrapping problem for new users? For new movies?
+When a new user signs up try to ask them questions that could help you understand their taste so you can find similar users to map them to
+
+28	How can feedback loops impact collaborative filtering systems?
+A small group of very enthusiastic users can essentially trick the algorithm into thinking their tastes represent all users. This can then attract more likeminded users and push away users who dont like this content, which will then reinforce this preference in the model even more.
+
+29	When using a neural network in collaborative filtering, why can we have different numbers of factors for movies and users?
+Because we concatenate all of the embeddings together.
+
+30	Why is there an nn.Sequential in the CollabNN model?
+Because its a deep nueral network, this layer learns how the embeddings interact with each other to form ratings
+
+31	What kind of model should we use if we want to add metadata about users and items, or information such as date and time, to a collaborative filtering model?
+EmbeddingNN
