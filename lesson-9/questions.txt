@@ -1,0 +1,107 @@
+1. What is a continuous variable?
+A continuous variable is something like age, its a number which we can preform mathematic operations on
+
+2. What is a categorical variable?
+A categorical variable is something like color , its a variable which can take on one or more values from a category
+
+3. Provide two of the words that are used for the possible values of a categorical variable.
+Discrete levels
+
+4. What is a "dense layer"?
+It's the same thing as a linear layer
+
+5. How do entity embeddings reduce memory usage and speed up neural networks?
+Embeddings are essentially a form of compression. They reduce the input data down to a set of numbers which usually take up less space in a computer. Also they often replace more memory intensive algorithms such as one hot encoding.
+
+6. What kinds of datasets are entity embeddings especially useful for?
+Datasets with high cardinality features which other methods tend to overfit.
+
+7. What are the two main families of machine learning algorithms?
+1. Ensembles of decision trees
+2. Multilayered Neural Networks
+
+8. Why do some categorical columns need a special ordering in their classes? How do you do this in Pandas?
+So our decision tree can split the data that is on one side of a pivot point. Like all the sales that occur before Wednesday for example. In pandas you set a column to be a type "category" then call set_categories with the list of categories and set ordered=True
+```
+sizes = 'Large','Large / Medium','Medium','Small','Mini','Compact'
+df['ProductSize'] = df['ProductSize'].astype('category')
+df['ProductSize'].cat.set_categories(sizes, ordered=True, inplace=True)
+```
+
+9. Summarize what a decision tree algorithm does.
+When making a prediction the algorithm takes an input and sends it into a bunch of if/else statements. If you were to draw out all possible paths through these if/else statements you would create a tree. The learning part of the algorithm creates the boolean logic that goes into the if/else statements. It does so with a recursive algorithm which takes a set of data tries all possibile split points on that data and picks the one with the lowest loss. Then it recurses with each set of data resulting from that split point, applying the same operation again and again until we reach the maximum allowable depth (or number of leaf nodes). The loss is determined by running the validation data through the decision tree and taking the root mean squared error.
+
+10. Why is a date different from a regular categorical or continuous variable, and how can you preprocess it to allow it to be used in a model?
+Dates are both. They are categorical in the sense that they fit into months like Jan, Feb, Mar, etc. and days of the week like Sunday, Monday, Tuesday, etc. But they are also continuous in that they are in order, they are always increasing and you could do math on them. So we prepare the date by breaking it up into different values to represent the categorical aspects and the continuous aspects.
+
+11. Should you pick a random validation set in the bulldozer competition? If no, what kind of validation set should you pick?
+No because the test set is based on future data and the price of bulldozers changes a lot with time. Therefore we should use datapoints near the end of our date range as our validation data
+
+12. What is pickle and what is it useful for?
+Pickle seralizes python objects so that you can save a python object to disk
+
+13. How are mse, samples, and values calculated in the decision tree drawn in this chapter?
+Mean squared error is the average of the square of all of the erros. Samples this is calculated by looking at the nodes of the decision tree as it processes data. Values are calculated by finding the decision point with the lowest when buildling the tree.
+
+14. How do we deal with outliers, before building a decision tree?
+It depends on the type of outlier but usually they are given the average of all of the values and then we set another flag on a new column that mentions that this data was missing.
+
+15. How do we handle categorical variables in a decision tree?
+We can one-hot encode them like we did when creating embeddings but there's not really any evidence that this is better than just using them directly. If we just use the categorical varaiables directly then the decision tree will simply learn how to isolate each category when its beneficial.
+
+16. What is bagging?
+Its the process of generating multiple versions of a predictor and then aggregating those predictors together. It works because all of the errors for each predictor fail in different ways and essentially cancel each other out, while the correct predictions reinforce each other.
+
+17. What is the difference between max_samples and max_features when creating a random forest?
+max_samples defines the maximum number of rows to use, max_features defines the maximum number of columns
+
+18. If you increase n_estimators to a very high value, can that lead to overfitting? Why or why not?
+No because these are the number of tress you are creating not the number of leaf nodes or depth of the tree.
+
+19. In the section "Creating a Random Forest", just after <<max_features>>, why did preds.mean(0) give the same result as our random forest?
+Because that's what a random forest is, it takes the average of all of the different trees.
+
+20. What is "out-of-bag-error"?
+We use the rows of data that was not included when training this tree as another validation set to measure this trees error loss.
+
+21. Make a list of reasons why a model's validation set error might be worse than the OOB error. How could you test your hypotheses?
+1. The validation set contains more data - len()
+2. The validation set contains different dates than the OOB data - plot the dates of each set of data
+
+22. Explain why random forests are well suited to answering each of the following question:
+- How confident are we in our predictions using a particular row of data?
+We look at the standard deviation for this row of data across all of the trees, if its a low then we are highly confident if its high then we are not confident
+
+- For predicting with a particular row of data, what were the most important factors, and how did they influence that prediction?
+We can loop through all of our trees and see which nodes in the tree had an impact on the prediction for this row. We tally up the columns used in each of the nodes that impacted this prediction. At the end we can return this tally which will show which are the more important factors.
+
+- Which columns are the strongest predictors?
+For each column we replace the value in that column with a dummy value for all rows, then we get the prediction for each row and average it. We can do this for all columns and set the dummy variable to each potential value that column can take on and find which columns and values have the biggest impact on the prediction.
+
+- How do predictions vary as we vary these columns?
+It depends on the data but in the example in the chapter varying the year has an exponential impact on the prediction.
+
+23. What's the purpose of removing unimportant variables?
+Reduces the memory and computational time needed, makes our model easier to reason about.
+
+24. What's a good type of plot for showing tree interpreter results?
+A waterfall plot showing each column on the x axis and its impact on the loss o nthe y axis.
+
+25. What is the "extrapolation problem"?
+Decision trees are not good at extrapolating into the future or outside the bounds of the data they were trained on. Neural networks are better for this.
+
+26. How can you tell if your test or validation set is distributed in a different way than your training set?
+We create a random forest to predict if a row of data is in the training set or the validation set. Then we run feature importance on the resulting model. 
+
+27. Why do we ensure saleElapsed is a continuous variable, even although it has less than 9,000 distinct values?
+Because saleElapsed encodes the date
+
+28. What is "boosting"?
+It's similar to bagging but instead of average a number of models together we train models on the "residuals" of previous models. Where the "residual" is the different between the models prediction and its target. This way each new model will be attempting to fit the error of the previous model. To get a prediction we calculate the prediction from each model and add them all together.
+
+29. How could we use embeddings with a random forest? Would we expect this to help?
+Yes in a study it was shown that adding embeddings to a random forest decreased the loss from .16% to 11%.
+We do so by first creating the embeddings using a neural network then training a random forest off of the embeddings.
+
+30. Why might we not always use a neural net for tabular modeling?
+They are more difficult and take longer to train, slower to make predictions, take up more memory and are more sensitive to hyperparameters. However most importantly they are difficult to inspect and see why they made a particular decision, where decision trees make this easy and have a lot of tools to do this already.
