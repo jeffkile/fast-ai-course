@@ -1,0 +1,71 @@
+1. What is "self-supervised learning"?
+The same data that's used for the dependent variable x is also used for the independent variable y. In other words we don't have to label data the algorithm itself is able to determine the correct label from the input data. 
+2. What is a "language model"?
+A model that has been trained to guess the next word in text.
+
+3. Why is a language model considered self-supervised?
+The independent varaible x text contains one less word than the dependent variable y text, and the algorithm tries to predict that missing word.
+
+4. What are self-supervised models usually used for?
+For text and image models. Usually for pretraining a model or embeddings for transfer learning.
+
+5. Why do we fine-tune language models?
+So that we can get the model familiar with the vernacular in the domain were interested in. For example in this chapter we wanted the model to have a good understanding of the names of movies and actors which might have not been as prevalent in the original wikipedia training data.
+
+6. What are the three steps to create a state-of-the-art text classifier?
+Start with a pre-trained language model, fine tune it for your data set, use it as an encoder to build a classifier.
+
+7. How do the 50,000 unlabeled movie reviews help us create a better text classifier for the IMDb dataset?
+We use it to fine train the pre-trained language model so that it's very good at predicting the next word in a movie review.
+
+8. What are the three steps to prepare your data for a language model?
+1. tokenization - convert the text into a list of tokens
+2. numericalization - convert each token into a number
+3. create an embedding matrix - for each token
+
+9. What is "tokenization"? Why do we need it?
+We need to break the text up into words and punctuation so that the machine learning algorithm can learn what those word's mean. Often we will use subwords instead of full words. These items of broken up text are called tokens.
+
+10. Name three different approaches to tokenization.
+1. Word - whole words
+2. Sub-word - whole words and parts of words
+3. Character - split the sentence into individual characters
+
+11. What is xxbos?
+BOS stands for "beginning of stream". xxbos is a special character that marks the beginning of a body of text.
+
+12. List four rules that fastai applies to text during tokenization.
+1. Mark the beginning of text with xxbos
+2. Mark when a letter is capatlized with xxmaj
+3. Replace repeated characters with xxrep
+4. Replace unkonwn words with xxunk
+
+13. Why are repeated characters replaced with a token showing the number of repetitions and the character that's repeated?
+This is so the model can learn the general concept of a repeated character. 
+
+14. What is "numericalization"?
+We assign a number to each token then we replace the token with the number in the ordered array of tokens.
+
+15. Why might there be words that are replaced with the "unknown word" token?
+We set a max vocab size and a min_frequency, so if a token hasn't appeared enough in the text to hit the min frequency and/or we have alrady reached our max vocab size, then we will replace the word with xxunk
+
+16. With a batch size of 64, the first row of the tensor representing the first batch contains the first 64 tokens for the dataset. What does the second row of that tensor contain? What does the first row of the second batch contain? (Careful—students often get this one wrong! Be sure to check your answer on the book's website.)
+The first row of the second batch contains tokens 65 through 128. 
+
+17. Why do we need padding for text classification? Why don't we need it for language modeling?
+For language modeling were trying to predict the next word in a sequence so we just need to shift the window over our text. With classification we are comparing whole blocks of text to other blocks of text. So in this case we need to pick a standard size so that our matrix multiplication will work. We use padding to make this standard size so that we don't have to do any truncation.
+
+18. What does an embedding matrix for NLP contain? What is its shape?
+It contains one row for each token. And the columns are equal to the number of latent factors we want to have.
+
+19. What is "perplexity"?
+It is the exponential of the loss, its a measure of our prediction.
+
+20. Why do we have to pass the vocabulary of the language model to the classifier data block?
+So that our numericalization can be decoded.
+
+21. What is "gradual unfreezing"?
+We gradually unfreeze layers of the pre-trained neural network as we running traning batches.
+
+22. Why is text generation always likely to be ahead of automatic identification of machine-generated texts?
+Because someone will create a new model and then others have to figure out how to train a model to try to detect it. We can't detect something that we don't know exists yet.
