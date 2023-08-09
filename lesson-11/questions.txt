@@ -1,0 +1,51 @@
+1. Why do we say that fastai has a "layered" API? What does it mean?
+By layers we mean levels of abstraction, the highes level or layer is the most abstract. Meaning it's the easiest to use but it also has the least amount of customization and debugability.
+
+2. Why does a Transform have a decode method? What does it do?
+It reverses the transformation, however it only sometimes works depending on the class that extends Transform
+
+3. Why does a Transform have a setup method? What does it do?
+Setup is for initializing some inner state that the transform will use to do it's transformation
+
+4. How does a Transform work when called on a tuple?
+It applies the same transformation to both items in the tuple
+
+5. Which methods do you need to implement when writing your own Transform?
+We need to write the encoding behavior in a function called encodes if we're subclassing the Tranform class. Otherwise we can pass any function into the Transform() function and it will be used as the encodes function. Setup and decodes are optional.
+
+6. Write a Normalize transform that fully normalizes items (subtract the mean and divide by the standard deviation of the dataset), and that can decode that behavior. Try not to peek!
+class NormalizeMean(Transform):
+    def setup(self, items):
+        self.items = items
+        self.mean = sum(items)/len(items)
+        self.std_deviation = np.std(items)
+    def encode(self, item):
+        return (item - self.mean) / self.std_deviation
+    def decode(self, item):
+        return (item + self.mean) * self.std_deviation
+
+7. Write a Transform that does the numericalization of tokenized texts (it should set its vocab automatically from the dataset seen and have a decode method). Look at the source code of fastai if you need help.
+
+8. What is a Pipeline?
+Its a composition of several tranforms together
+
+9. What is a TfmdLists?
+A class that groups together a Pipeline and raw items of data. It calls the setup function of each transform in order with the raw data items.
+
+10. What is a Datasets? How is it different from a TfmdLists?
+Datasets will apply two or more pipelines in parallel to the same raw data. It's very similar to TfmdLists and has much of the same functionality like splits, decode, and encode.
+
+11. Why are TfmdLists and Datasets named with an "s"?
+Because they can handle training and validation sets at the same time, this is done by passing in the "splits" argument
+
+12. How can you build a DataLoaders from a TfmdLists or a Datasets?
+You can call the .dataloaders() function which will convert it to a DataLoaders object
+
+13. How do you pass item_tfms and batch_tfms when building a DataLoaders from a TfmdLists or a Datasets?
+You don't, instead you use the after_item and after_batch event hooks. after_item is run on every item and after_batch is run on a batch as a whole after it's constructed.
+
+14. What do you need to do when you want to have your custom items work with methods like show_batch or show_results?
+You need to implement a decode method in your transformer.
+
+15. Why can we easily apply fastai data augmentation transforms to the SiamesePair we built?
+Because it extends FastTuple which is the datastructure that these augmentations operate on.
