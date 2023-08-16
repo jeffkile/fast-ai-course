@@ -1,0 +1,170 @@
+1. If the dataset for your project is so big and complicated that working with it takes a significant amount of time, what should you do?
+Find a simpler dataset or simplify your dataset. You need to start with something simple that you can improve. Then
+once you have a working model try it on something more complicated.
+
+2. Why do we concatenate the documents in our dataset before creating a language model?
+So that the model can learn from the earlier data when training
+
+3. To use a standard fully connected network to predict the fourth word given the previous three words, what two tweaks do we need to make to our model?
+1. Each layer will be fed in embeddings for the corresponding word (first word first layer, second word second layer,
+third word third layer), as well as the output from the previous layer
+2. All of the input/output pairs will use the same neural network, changing the word embeddings fed into each layer.
+This is is because each input/output pair is in a sequence, so we should have context from the previous examples we've
+run through the network.
+
+4. How can we share a weight matrix across multiple layers in PyTorch?
+We define one layer and use it multiple times as in the code:
+```
+        for i in range(3):
+            h = h + self.i_h(x[:,i])
+            h = F.relu(self.h_h(h))
+```
+
+5. Write a module that predicts the third word given the previous two words of a sentence, without peeking.
+class SimpleRNN(Module):
+  def __init__(self, vocab_size, num_params):
+    self.input_to_hidden_layer = nn.Embedding(vocab_size, num_params)
+    self.hidden_to_hidden_layer = nn.Linear(num_params, num_params)
+    self.hidden_to_ouput_layer = nn.Linear(num_params, vocab_size)
+
+  def forward(self, x):
+    val = 0
+    for i in range(2):
+      val = val + self.input_to_hidden(x[:,i])
+      val = F.relu(self.hidden_to_hidden(val))
+    return self.hidden_to_output(val)
+
+6. What is a recurrent neural network?
+Recurrent simply means looping. Its a neural network with a loop
+
+7. What is "hidden state"?
+Hidden state is "val" in our sample code above, except persisted across calls to forward. It saves information about
+previous sentences that its seen.
+
+8. What is the equivalent of hidden state in LMModel1?
+h
+
+9. To maintain the state in an RNN, why is it important to pass the text to the model in order?
+So that the model get's an understanding of the context that words appear in
+
+10. What is an "unrolled" representation of an RNN?
+This means reasoning about the network with the loop expanded, so an RNN with a loop i to range(10k) would have 10k
+layers when "unrolled"
+
+11. Why can maintaining the hidden state in an RNN lead to memory and performance problems? How do we fix this problem?
+A neural network with too many layers will take up too much memory and too much time to do backward
+propagation computations. We fix this problem by not doing back propagation on the whole network, we only do back prop
+on the last x layers where x was 3 in the books example.
+
+12. What is "BPTT"?
+Back Propagation Through Time.
+
+13. Write code to print out the first few batches of the validation set, including converting the token IDs back into
+English strings, as we showed for batches of IMDb data in <<chapter_nlp>>.
+```
+with open(path/'train.txt') as f: lines += L(*f.readlines())
+with open(path/'valid.txt') as f: lines += L(*f.readlines())
+text = ' . '.join([l.strip() for l in lines])
+tokens = text.split(' ')
+vocab = L(*tokens).unique()
+word2idx = {w:i for i,w in enumerate(vocab)}
+nums = L(word2idx[i] for i in tokens)
+for i in range(20):
+  print(vocab[nums[i]])
+```
+
+14. What does the ModelResetter callback do? Why do we need it?
+It calls the `reset` function which resets the internal state back to 0. It gets called at the beginning of each epoch
+this way we can start with a clean slate without having the previous epoch effecting this one
+
+15. What are the downsides of predicting just one output word for each three input words?
+We get less signal that we can use to update weights. If we predict a word after the first, second and third word (in
+the 3 word example) then we will have 3 times as much signal to use to update the weights. This turns out to perform
+better.
+
+16. Why do we need a custom loss function for LMModel4?
+Because were predicting outputs for each of the words in our sequence length we now have a 3d output in the shape of
+bach size x sequence length x vocab size. Cross Entropy Loss only works on 2d tensors like batch size x vocab size so
+we need to reshape batch size x sequence length into a 1d tensor
+
+17. Why is the training of LMModel4 unstable?
+Because we effectively have a very large network our gradients can easily become very large or very small because there
+are so many multiplications taking place.
+
+18. In the unrolled representation, we can see that a recurrent neural network actually has many layers. So why do we need to stack RNNs to get better results?
+Because all of the layers in our original network have the same weights so adding more networks allows us to have more
+weights.
+
+19. Draw a representation of a stacked (multilayer) RNN.
+See <<unrolled_stack_rep>>
+
+20. Why should we get better results in an RNN if we call detach less often? Why might this not happen in practice with a simple RNN?
+It would give our RNN a longer time horizon to learn from.
+
+21. Why can a deep network result in very large or very small activations? Why does this matter?
+Same reason LMModel4 was unstable. Whenever we are doing a lot of repeated multiplications we run the risk of
+numbers growing very large or very small.
+
+22. In a computer's floating-point representation of numbers, which numbers are the most precise?
+They are most accurate near 0
+
+23. Why do vanishing gradients prevent training?
+Because weights will either not update at all or go to infinity, neither of which is useful
+
+24. Why does it help to have two hidden states in the LSTM architecture? What is the purpose of each one?
+Because RNNs are really bad at retaining memory about what happened much earlier in the sentence.
+The cell state is responsible for remembering what happened much earlier in the text.
+The hidden state is still used to predict the next token
+
+25. What are these two states called in an LSTM?
+Cell state and Hidden state
+
+26. What is tanh, and how is it related to sigmoid?
+Tanh is the sigmoid function scaled or mapped to the range -1 to 1
+
+27. What is the purpose of this code in LSTMCell: h = torch.cat([h, input], dim=1)
+It combines the hidden state with the input
+
+28. What does chunk do in PyTorch?
+It splits a tensor into roughly equal sized pieces
+
+29. Study the refactored version of LSTMCell carefully to ensure you understand how and why it does the same thing as the non-refactored version.
+It's using stacking to reduce the number of calculations needed on the gpu
+
+30. Why can we use a higher learning rate for LMModel6?
+Because Model 6 uses LSTM and Model 5 doesnt, Model 6 is less likely to have the vanishing gradient problem and
+therefore can handle using a higher learning rate
+
+31. What are the three regularization techniques used in an AWD-LSTM model?
+Dropout, activation regularization and temporal activation regularization
+
+32. What is "dropout"?
+It was created by Geoffrey Hinton, the idea is too randomly change some activations to zero during training to prevent
+overfitting
+
+33. Why do we scale the activations with dropout? Is this applied during training, inference, or both?
+Because we are summing multiple inputs into one neuron we need to keep the scale the same for the neurons who have had
+weights dropped out and those that haven't
+
+34. What is the purpose of this line from Dropout: if not self.training: return x
+We don't want to do dropout during evaluation only during training
+
+35. Experiment with bernoulli_ to understand how it works.
+test_x = torch.zeros(4,4)
+test_x = test_x.bernoulli(0.5)
+test_x
+
+36. How do you set your model in training mode in PyTorch? In evaluation mode?
+Calling the `train()` method on a `Module` sets training mode to true. Calling `eval()` sets the training model to
+false
+
+37. Write the equation for activation regularization (in math or code, as you prefer). How is it different from weight decay?
+loss += alpha * activations.pow(2).mean()
+
+38. Write the equation for temporal activation regularization (in math or code, as you prefer). Why wouldn't we use this for computer vision problems?
+loss += beta * (activations[:,1:] - activations[:,:-1]).pow(2).mean()
+
+39. What is "weight tying" in a language model?
+We use the same matrix for the embedding and output layer, this is because were mapping from words to activations then
+from activations back to words, so intuitively it makes sense that these could be the "same" set of weights. They start
+off as embeddings but change over the course of training
