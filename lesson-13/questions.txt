@@ -1,0 +1,143 @@
+1. What is a "feature"?
+It is part of or a transformation of the input data which is used to make training the model easier.
+
+2. Write out the convolutional kernel matrix for a top edge detector.
+[[1, 1, 1],
+[0, 0, 0],
+[-1, -1, -1]]
+
+3. Write out the mathematical operation applied by a 3×3 kernel to a single pixel in an image.
+A 3x3 kernal needs at least a 3x3 pixel area in the image. Then we multiply each pixel by each corresponding kernal
+position (0,0) * (0,0), (0,1) * (0,1), etc. Then add them all together along with some bias to produce the resulting
+pixel value in the resulting image
+
+4. What is the value of a convolutional kernel apply to a 3×3 matrix of zeros?
+They would still be all 0s because anything multiplied by 0 is 0
+
+5. What is "padding"?
+Padding is adding extra values, usually 0, to the edges of our image to make it fit a particular shape
+
+6. What is "stride"?
+Stride is skipping a column or row as you move the kernal over the input matrix
+
+7. Create a nested list comprehension to complete any task that you choose.
+[[i * x for x in range(1, 3)] for i in range(2, 4)]
+
+8. What are the shapes of the input and weight parameters to PyTorch's 2D convolution?
+Input is a tensor of shape (minibatch, input_channels, input_height, input_weight)
+Weight is a tensor of shape (output_channels, input_channels, kernal_height, kernal_width)
+
+9. What is a "channel"?
+Usually its used to represent one color spectrum of the image like red, green or blue
+
+10. What is the relationship between a convolution and a matrix multiplication?
+A convolution is a special kind of matrix multiplication. The difference is the weight matrix has 2 special properties:
+1. There are locations containing 0s which are untrainable
+2. Some of the weights are equal
+
+11. What is a "convolutional neural network"?
+It's a neural network that contains at least one convolutional layer
+
+12. What is the benefit of refactoring parts of your neural network definition?
+By using a function you can keep the code cleaner and more readable, its also easier to test
+
+13. What is Flatten? Where does it need to be included in the MNIST CNN? Why?
+It's the same as pytorch's squeeze function. It removes any axis from the tensor that's equal to one. It's included in
+the last layer because we need to go from a rank 4 tensor to a rank 2 tensor and we have 2 axis that are equal to 1.
+
+14. What does "NCHW" mean?
+batch size, channel, height, width
+
+15. Why does the third layer of the MNIST CNN have 7*7*(1168-16) multiplications?
+From the summary we can there are 1168 input parameters to this layer, we subtract 16 because we don't need to multiply
+the channel axis then we multiply by 7*7 because the previous layer has 7x7 output parameters.
+
+16. What is a "receptive field"?
+It's the area of a source image which was used to calculate image values for a particular location in the destination.
+
+17. What is the size of the receptive field of an activation after two stride 2 convolutions? Why?
+7x7 because we selected a 3x3 area in the first image, then reduced the size of by 1/2 then selected a 3x3 area of that which slightly overlapped, so many of those pixels in the reduced size image came from 2 pixels in the larger image. In all it means there were 7x7 pixels from the original image being used.
+
+18. Run conv-example.xlsx yourself and experiment with trace precedents.
+Done
+
+19. Have a look at Jeremy or Sylvain's list of recent Twitter "like"s, and see if you find any interesting resources or ideas there.
+Done
+
+20. How is a color image represented as a tensor?
+It's represented as 3 tensors one for red green and blue, or hue saturation and value.
+
+21. How does a convolution work with a color input?
+The same way as black and white inputs except on each color channel. Then at the end we combine the results by summing
+each channels output together. The weights for each network are not shred between channels.
+
+22. What method can we use to see that data in DataLoaders?
+We can use dataloaders.show_batch()
+
+23. Why do we double the number of filters after each stride-2 conv?
+Doubling the number of filters maintains the same amount of computation since were halving the number of pixels. It also intuitively makes sense that as we move deeper in the network we would have more complex attributes to process thus needing more filters or kernals.
+
+24. Why do we use a larger kernel in the first conv with MNIST (with simple_cnn)?
+So that we have a smaller output than input. By having a smaller output implements the concept of dimensionality
+reduction which is believed to help the network learn complex features without overfiting.
+
+25. What information does ActivationStats save for each layer?
+Mean, standard deviation and histogram of activations for each trainable layer.
+
+26. How can we access a learner's callback after training?
+By using the snake case version of the callback name like learn.activation_stats or learn.recorder
+
+27. What are the three statistics plotted by plot_layer_stats? What does the x-axis represent?
+The mean value of the activations, the standard deviation of the activations and the percent of the activations that are near 0. X axis represents the iterations during training or essentially how the value changes over time throughout the training process.
+
+28. Why are activations near zero problematic?
+Because anything multiplied by 0 is 0 so if we have a lot of 0 activations than most of our network is not going to be
+being used, meaning we probably aren't learning as much as we could be.
+
+29. What are the upsides and downsides of training with a larger batch size?
+The main upside is that larger batches have more accurate gradients because they were calculated from more data.
+However the downside is that we don't update the weights as often, since there are less batches.
+
+30. Why should we avoid using a high learning rate at the start of training?
+Because the initial weights are random we could be jumping all over the place in random space. Its better to have a
+small learning rate that slowly but steadily gets us on the right path.
+
+31. What is 1cycle training?
+The cycle is train at a low rate early in the training process, then increase the learning rate mid way through, then
+decrease the rate again at the end.
+
+32. What are the benefits of training with a high learning rate?
+We can train faster
+
+33. Why do we want to use a low learning rate at the end of training?
+We don't want to skip over a minimum in our loss function we want to settle into the best spot we've found so far
+
+34. What is "cyclical momentum"?
+The idea with momentum is to continue moving in the direction that we have been moving even if some gradients are
+pointing us in a different direction. The cyclical part means that when we are a high learning rate we use less
+momentum are more free to move where the gradients tell us, when were using a low learning rate then its best to have
+high momentum that keeps us going in the direction we have been.
+
+35. What callback tracks hyperparameter values during training (along with other information)?
+Recorder
+
+36. What does one column of pixels in the color_dim plot represent?
+It represents the number of activations in a single batch
+
+37. What does "bad training" look like in color_dim? Why?
+It looks like a series of peaks and valleys. It's bad because it looks like the model is training then losing all of
+its knowledge then regaining it again over and over. It's better if it we just gain activations and never lose them in
+a big drop. It's also spiky where we prefer smooth lines
+
+38. What trainable parameters does a batch normalization layer contain?
+Gamma and Beta which are used to modify the normalized parameters allowing for some activations to be very large which
+helps make more accurate predictions
+
+39. What statistics are used to normalize in batch normalization during training? How about during validation?
+Mean and standard deviation are used to normalize during training. During validation we use a running mean which was
+calculated over all of training
+
+40. Why do models with batch normalization layers generalize better?
+It's not known for sure why but the belief is that this adds a certain amount of randomness to the training as each
+batch will have a different mean and standard deviations from the others. Randomness in training tends help the
+training process.
