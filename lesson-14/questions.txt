@@ -1,0 +1,90 @@
+1. How did we get to a single vector of activations in the CNNs used for MNIST in previous chapters? Why isn't that suitable for Imagenette?
+We used a number of consecutive stride 2 convolutions until we got down to a single pixel. We have too many input
+pixels in imagenette so we would need a very deep network and then our resulting network would only be able to support
+images of the same dimensions as our training data, which is not what we want.
+
+2. What do we do for Imagenette instead?
+We have an average pooling layer near the end of the network which averages all of the activations into a single
+activation per image
+
+3. What is "adaptive pooling"?
+Adaptive pooling means the size of window over which the pooling occurs is dynamic. In practice this usually means we
+average all of the values in the matrix down to one value
+
+4. What is "average pooling"?
+In average pooling we take the average of some area, often the whole matrix. Similar to max pooling
+
+5. Why do we need Flatten after an adaptive average pooling layer?
+This removes the unit axis after the adaptive average pooling
+
+6. What is a "skip connection"?
+Essentially the model has a trainable parameter that can turn a convolution layer (or two convolution layers) on or
+off. This allows us to skip a CNN completely if SGD determines its not useful
+
+7. Why do skip connections allow us to train deeper models?
+Because the network can essentially bypass the deeper layers if they are not useful. So theoretically any new layer we
+add will only be used if its useful. With previous CNNs we had no choice but to have the next layer in the network
+modify the previous layers activations, even if it had nothing good to add, now we can skip over those layers unless
+they help in reducing the loss
+
+8. What does <<resnet_depth>> show? How did that lead to the idea of skip connections?
+It shows that in this case a deeper network actually performs worse than a shallower network. This leads to the idea
+that we should only use a layer of the network if its beneficial and skip any layer that makes our loss worse.
+
+9. What is "identity mapping"?
+The idea is that the convolutional layers which are added to the skip value can learn that it should go to zero which
+would cause only the skip value to be used. This means this whole thing would be equivalent to the identity function
+
+10. What is the basic equation for a ResNet block (ignoring batchnorm and ReLU layers)?
+x + conv2(conv1(x))
+
+11. What do ResNets have to do with residuals?
+If we define "residual" as prediction minus target then we can say that these networks are predicting the residual.
+That is if y is the target than y = x + something means that y - x = something, which is the definition of the residual
+we just mentioned. And in question 10 we can see that something is conv2(conv1(x))
+
+12. How do we deal with the skip connection when there is a stride-2 convolution? How about when the number of filters changes?
+We change the shape of the input x to match the resulting size after the convolutions. We can do this using an average
+pooling layer for example
+
+13. How can we express a 1×1 convolution in terms of a vector dot product?
+```
+  for h in range(height):
+    for w in range(width):
+      for f in range(num_filters):
+        output[h, w, f] = np.dot(input[h, w], filters[f].reshape(-1))
+```
+
+14. Create a 1x1 convolution with F.conv2d or nn.Conv2d and apply it to an image. What happens to the shape of the image?
+The shape of the image stays the same but all of the channels are collapsed.
+
+15. What does the noop function return?
+It returns the input unchanged, noop is short for no operation
+
+16. Explain what is shown in <<resnet_surface>>.
+This is a map of the loss function, it shows that adding skip layers makes the loss function much smoother.
+
+17. When is top-5 accuracy a better metric than top-1 accuracy?
+Top 5 accuracy means that our prediction is one of the top 5 labels for the image. There may be many labels for an
+image as there might be multiple items in the image, or multiple names for the same item, etc.
+
+18. What is the "stem" of a CNN?
+The first layers of the network, often it has a different structure than the rest of the network
+
+19. Why do we use plain convolutions in the CNN stem, instead of ResNet blocks?
+Because the vast majority of computation beings in the early layers, they should be as fast and as simple as possible.
+
+20. How does a bottleneck block differ from a plain ResNet block?
+It has 3 layers, the first and last are 1x1 convolutions, the second is a 3x3 convolution. It collapses the number of
+channels then expands them again. In the process we add a number of filters which we can execute in the same amount of
+time as our old resnet block.
+
+21. Why is a bottleneck block faster?
+Because usually we have 3 or more channels and so performing 3x3 convolutions on all those channels is much slower than
+collapsing all of the channels down first, then performing the convolutions, then expanding them again.
+
+22. How do fully convolutional nets (and nets with adaptive pooling in general) allow for progressive resizing?
+Because there are no fully connected layers they are able to operate on images of any size. Additionally adaptive
+pooling layers can resize it's input to fit the network allowing us to pass in images of any size
+
+
