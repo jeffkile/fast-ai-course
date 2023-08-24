@@ -1,0 +1,77 @@
+1. What is the "head" of a neural net?
+The last one or more layers of the network that is specialized for a specific task. It's the part that we need to replace if we are reusing a pretrained
+network with transfer learning.
+
+2. What is the "body" of a neural net?
+Everything that isn't the head, including the stem or the beginning of the network
+
+3. What is "cutting" a neural net? Why do we need to do this for transfer learning?
+This is removing the head from the network. We do this so we can add a new head which we can train specifically for our
+tasks
+
+4. What is model_meta? Try printing it to see what's inside.
+Metadata for the model, most importantly for this chapter it has the cutoff point for the head of the model
+
+5. Read the source code for create_head and make sure you understand what each line does.
+Done
+
+6. Look at the output of create_head and make sure you understand why each layer is there, and how the create_head source created it.
+Done
+
+7. Figure out how to change the dropout, layer size, and number of layers created by vision_learner, and see if you can find values that result in better accuracy from the pet recognizer.
+Done
+
+8. What does AdaptiveConcatPool2d do?
+It applies average pooling and max pooling and concatenates the results. The "adaptive" part allows for variable sizes
+
+9. What is "nearest neighbor interpolation"? How can it be used to upsample convolutional activations?
+When expanding a smaller matrix into a larger matrix we duplicate a single pixel multiple times int he expanded version
+of the image
+
+10. What is a "transposed convolution"? What is another name for it?
+Another name is stride half convolutions. Its a way to make a matrix bigger by inserting 0s between all of the pixels
+
+11. Create a conv layer with transpose=True and apply it to an image. Check the output shape.
+Done
+
+12. Draw the U-Net architecture.
+This is a very simplified drawing:
+
+input -----------------------> output
+ |                             /\
+ V                             |
+ 3x3 conv                   3x3 conv
+ 2x2 max pool  -----------> 2x2 up conv
+      |                        /\
+      V                        |
+    3x3 conv             3x3 conv
+    2x2 max pool ----> 2x2 up conv
+          |             /\
+          V             |
+          3x3 convolution
+
+
+13. What is "BPTT for Text Classification" (BPT3C)?
+It's similar to back propagation through time (bptt) except that the back propagation doesn't happen after every token
+but rather after chunks of text
+
+14. How do we handle different length sequences in BPT3C?
+We use padding, we pad with the special token xxpad
+
+15. Try to run each line of TabularModel.forward separately, one line per cell, in a notebook, and look at the input and output shapes at each step.
+Done
+
+16. How is self.layers defined in TabularModel?
+It's defined in the __init__ function of TabularModel. Its a list of linear layers and ReLU activations
+
+17. What are the five steps for preventing over-fitting?
+1. More data - Try to find more labeled data
+2. Data augmentation - Use things like Mixup and other data augmentation techniques
+3. Generalizable architectures - For example add batch normalization
+4. Regularization - Try adding dropout to the last layer or two, or different types of dropout throughout the model
+5. Reduce architecture complexity - Try using a smaller version of the architecture, less layers, etc
+
+18. Why don't we reduce architecture complexity before trying other approaches to preventing overfitting?
+Because it will reduce the ability of the model to learn subtle details
+
+
